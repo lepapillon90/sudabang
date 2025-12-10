@@ -1,65 +1,83 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/Button";
+import Link from "next/link";
+import { ROUTES } from "@/constants";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+
+export default function LandingPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/home');
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  // 로그인 상태면 리다이렉트되므로, 여기는 비로그인 상태일 때만 보임
+  if (user) return null;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex flex-col min-h-screen">
+      {/* Hero Section */}
+      <section className="flex-1 flex flex-col justify-center items-center text-center px-4 py-20 bg-gradient-to-b from-blue-50 to-white">
+        <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 mb-6 tracking-tight">
+          함께 성장하는 즐거움,<br />
+          <span className="text-blue-600">수다방</span>에서 시작하세요
+        </h1>
+        <p className="text-xl text-gray-600 mb-10 max-w-2xl">
+          혼자하면 힘든 자기계발, 이제는 함께하세요.<br />
+          서로 응원하고 기록하며 더 나은 나를 만들어갑니다.
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm font-medium">
+          <Link href={ROUTES.SIGNUP} className="flex-1">
+            <Button size="lg" fullWidth className="h-14 text-lg">
+              3초 만에 시작하기
+            </Button>
+          </Link>
+          <Link href={ROUTES.LOGIN} className="flex-1">
+            <Button size="lg" variant="outline" fullWidth className="h-14 text-lg">
+              로그인
+            </Button>
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Feature Preview Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-12">이런 기능들이 있어요</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-6 rounded-2xl bg-gray-50 hover:bg-transparant hover:shadow-lg transition-all duration-300">
+              <div className="text-4xl mb-4">💬</div>
+              <h3 className="text-xl font-bold mb-2">관심사별 수다방</h3>
+              <p className="text-gray-600">주식, 독서, 운동...<br />관심사가 같은 사람들과 대화하세요.</p>
+            </div>
+            <div className="p-6 rounded-2xl bg-gray-50 hover:bg-transparant hover:shadow-lg transition-all duration-300">
+              <div className="text-4xl mb-4">🎯</div>
+              <h3 className="text-xl font-bold mb-2">목표 달성 트래커</h3>
+              <p className="text-gray-600">나만의 목표를 설정하고<br />진행 상황을 시각적으로 확인하세요.</p>
+            </div>
+            <div className="p-6 rounded-2xl bg-gray-50 hover:bg-transparant hover:shadow-lg transition-all duration-300">
+              <div className="text-4xl mb-4">📝</div>
+              <h3 className="text-xl font-bold mb-2">성장 기록 피드</h3>
+              <p className="text-gray-600">오늘의 배움을 기록하고<br />서로의 성장을 응원해주세요.</p>
+            </div>
+          </div>
         </div>
-      </main>
+      </section>
     </div>
   );
 }
