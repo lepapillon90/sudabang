@@ -25,32 +25,34 @@ export default function HomePage() {
     if (!user) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
-                <p>로그인 정보를 확인 중입니다...</p>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500 mb-4"></div>
+                <p className="text-slate-400">로그인 정보를 확인 중입니다...</p>
             </div>
         );
     }
 
     return (
         <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-12">
-            {/* 1. 웰컴 섹션 */}
+            {/* 1. 웰컴 섹션 (Welcome Section) */}
             <section>
-                <h1 className="text-2xl font-bold text-gray-900">
-                    반가워요, {user.displayName}님! 👋
+                <h1 className="text-3xl font-serif font-bold text-white mb-2">
+                    반가워요, <span className="text-amber-400">{user.displayName}</span>님! 👋
                 </h1>
-                <p className="text-gray-600 mt-1">
+                <p className="text-slate-400 mt-1">
                     오늘도 수다방에서 함께 성장해볼까요?
                 </p>
             </section>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* 왼쪽 컬럼 (피드) */}
+                {/* 왼쪽 컬럼 (피드) (Left Column - Feed) */}
                 <div className="lg:col-span-2 space-y-8">
-                    {/* 최근 피드 */}
+                    {/* 최근 피드 (Recent Feed) */}
                     <section>
                         <div className="flex justify-between items-end mb-4">
-                            <h2 className="text-xl font-bold text-gray-900">🔥 실시간 인기 피드</h2>
-                            <Link href={ROUTES.FEED} className="text-sm text-blue-600 hover:underline">
+                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                🔥 실시간 인기 피드
+                            </h2>
+                            <Link href={ROUTES.FEED} className="text-sm text-slate-400 hover:text-amber-400 transition-colors">
                                 더보기
                             </Link>
                         </div>
@@ -66,21 +68,25 @@ export default function HomePage() {
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-10 bg-gray-50 rounded-xl">
-                                <p className="text-gray-500">아직 올라온 글이 없어요.</p>
+                            <div className="text-center py-10 bg-slate-900/50 border border-slate-800 rounded-xl backdrop-blur-sm">
+                                <p className="text-slate-500">아직 올라온 글이 없어요.</p>
                             </div>
                         )}
                     </section>
                 </div>
 
-                {/* 오른쪽 컬럼 (목표, 채팅방) */}
+                {/* 오른쪽 컬럼 (목표, 채팅방) (Right Column - Goals, Rooms) */}
                 <div className="space-y-8">
-                    {/* 내 목표 */}
-                    <section className="bg-white p-6 rounded-2xl border shadow-sm">
+                    {/* 내 목표 (My Goals) */}
+                    <section className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 shadow-lg backdrop-blur-sm">
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-lg font-bold text-gray-900">🎯 내 목표</h2>
+                            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                                🎯 내 목표
+                            </h2>
                             <Link href={ROUTES.GOALS}>
-                                <Button size="sm" variant="ghost">관리</Button>
+                                <span className="text-xs text-slate-400 hover:text-white transition-colors cursor-pointer">
+                                    관리
+                                </span>
                             </Link>
                         </div>
 
@@ -89,33 +95,37 @@ export default function HomePage() {
                                 {myGoals.map(goal => (
                                     <div key={goal.id}>
                                         <div className="flex justify-between text-sm mb-1">
-                                            <span className="font-medium text-gray-800">{goal.title}</span>
-                                            <span className="text-blue-600 font-bold">{goal.progress}%</span>
+                                            <span className="font-medium text-slate-200">{goal.title}</span>
+                                            <span className="text-amber-400 font-bold">{goal.progress}%</span>
                                         </div>
                                         <ProgressBar progress={goal.progress} height="sm" />
                                     </div>
                                 ))}
                                 {myGoals.length < goals.length && (
-                                    <p className="text-center text-xs text-gray-400 mt-2">
+                                    <p className="text-center text-xs text-slate-500 mt-2">
                                         외 {goals.length - myGoals.length}개의 목표가 더 있어요
                                     </p>
                                 )}
                             </div>
                         ) : (
                             <div className="text-center py-6">
-                                <p className="text-sm text-gray-500 mb-4">설정된 목표가 없습니다.</p>
+                                <p className="text-sm text-slate-500 mb-4">설정된 목표가 없습니다.</p>
                                 <Link href={ROUTES.GOALS}>
-                                    <Button size="sm" fullWidth>목표 설정하기</Button>
+                                    <Button size="sm" fullWidth className="bg-amber-600 hover:bg-amber-500 text-white border-none">
+                                        목표 설정하기
+                                    </Button>
                                 </Link>
                             </div>
                         )}
                     </section>
 
-                    {/* 추천 채팅방 */}
+                    {/* 추천 채팅방 (Recommended Rooms) */}
                     <section>
                         <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-lg font-bold text-gray-900">💬 추천 채팅방</h2>
-                            <Link href={ROUTES.ROOMS} className="text-sm text-blue-600 hover:underline">
+                            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                                💬 추천 채팅방
+                            </h2>
+                            <Link href={ROUTES.ROOMS} className="text-sm text-slate-400 hover:text-amber-400 transition-colors">
                                 전체보기
                             </Link>
                         </div>
@@ -124,12 +134,17 @@ export default function HomePage() {
                                 <Link
                                     key={room.id}
                                     href={ROUTES.ROOM_DETAIL(room.id)}
-                                    className="block p-4 bg-white border rounded-xl hover:border-blue-300 transition-colors"
+                                    className="group block p-4 bg-slate-800/40 border border-white/5 rounded-2xl hover:bg-slate-800/60 hover:border-amber-500/50 hover:shadow-[0_0_20px_-5px_rgba(245,158,11,0.15)] transition-all duration-300 backdrop-blur-sm relative overflow-hidden"
                                 >
-                                    <h3 className="font-semibold text-gray-900 text-sm truncate">{room.name}</h3>
-                                    <div className="flex justify-between items-center mt-2">
-                                        <span className="text-xs text-gray-500">{room.category}</span>
-                                        <span className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+                                    <h3 className="font-semibold text-slate-200 text-sm truncate mb-2">
+                                        {room.name}
+                                    </h3>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-xs text-slate-500 border border-slate-700 px-2 py-0.5 rounded-full">
+                                            {room.category}
+                                        </span>
+                                        <span className="text-xs text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">
                                             {room.memberCount}명
                                         </span>
                                     </div>

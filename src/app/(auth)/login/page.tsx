@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ROUTES } from '@/constants';
+import { getAuthErrorMessage } from '@/utils/authErrors';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
@@ -29,11 +30,7 @@ export default function LoginPage() {
             router.push(ROUTES.HOME);
         } catch (err: any) {
             console.error(err);
-            if (err.code === 'auth/invalid-credential') {
-                setError('이메일 또는 비밀번호가 올바르지 않습니다.');
-            } else {
-                setError('로그인 중 오류가 발생했습니다.');
-            }
+            setError(getAuthErrorMessage(err.code));
         } finally {
             setLoading(false);
         }
@@ -45,9 +42,9 @@ export default function LoginPage() {
         try {
             await signInWithGoogle();
             router.push(ROUTES.HOME);
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
-            setError('구글 로그인 중 오류가 발생했습니다.');
+            setError(getAuthErrorMessage(err.code));
             setLoading(false);
         }
     };

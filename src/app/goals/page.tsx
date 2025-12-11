@@ -29,7 +29,7 @@ export default function GoalsPage() {
     if (loading) {
         return (
             <div className="flex justify-center items-center min-h-[60vh]">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-400"></div>
             </div>
         );
     }
@@ -51,47 +51,52 @@ export default function GoalsPage() {
     return (
         <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
             {/* 헤더 섹션 */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 sm:p-10 text-white mb-8 shadow-lg">
-                <div className="flex justify-between items-start">
+            <div className="bg-gradient-to-r from-amber-600 to-amber-800 rounded-2xl p-6 sm:p-10 text-white mb-10 shadow-2xl shadow-amber-900/30 border border-amber-500/20 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+
+                <div className="flex justify-between items-start relative z-10">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+                        <h1 className="text-2xl sm:text-3xl font-serif font-bold mb-2 text-white">
                             {user.displayName}님의 성장 대시보드
                         </h1>
-                        <p className="text-blue-100 mb-6">
+                        <p className="text-amber-100 mb-6 font-light">
                             오늘도 한 걸음 더 성장해보세요! 🌱
                         </p>
                     </div>
                     <Button
-                        className="bg-white text-blue-600 hover:bg-blue-50"
+                        className="bg-slate-950/80 text-amber-500 hover:bg-slate-900 backdrop-blur-sm border border-amber-500/30"
                         onClick={() => setIsModalOpen(true)}
                     >
                         + 새 목표
                     </Button>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 text-center">
-                    <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm">
-                        <div className="text-2xl font-bold">{totalGoals}</div>
-                        <div className="text-xs sm:text-sm text-blue-100">전체 목표</div>
+                <div className="grid grid-cols-3 gap-4 text-center relative z-10">
+                    <div className="bg-black/20 rounded-xl p-3 backdrop-blur-sm border border-white/10">
+                        <div className="text-2xl font-bold text-white">{totalGoals}</div>
+                        <div className="text-xs sm:text-sm text-amber-200/80">전체 목표</div>
                     </div>
-                    <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm">
-                        <div className="text-2xl font-bold">{completedGoals}</div>
-                        <div className="text-xs sm:text-sm text-blue-100">달성 완료</div>
+                    <div className="bg-black/20 rounded-xl p-3 backdrop-blur-sm border border-white/10">
+                        <div className="text-2xl font-bold text-white">{completedGoals}</div>
+                        <div className="text-xs sm:text-sm text-amber-200/80">달성 완료</div>
                     </div>
-                    <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm">
-                        <div className="text-2xl font-bold">{totalProgress}%</div>
-                        <div className="text-xs sm:text-sm text-blue-100">평균 달성률</div>
+                    <div className="bg-black/20 rounded-xl p-3 backdrop-blur-sm border border-white/10">
+                        <div className="text-2xl font-bold text-white">{totalProgress}%</div>
+                        <div className="text-xs sm:text-sm text-amber-200/80">평균 달성률</div>
                     </div>
                 </div>
             </div>
 
             {/* 목표 리스트 */}
-            <h2 className="text-xl font-bold text-gray-900 mb-4">진행 중인 목표</h2>
+            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <span className="w-1 h-6 bg-amber-500 rounded-full"></span>
+                진행 중인 목표
+            </h2>
 
             {goals.length === 0 ? (
-                <div className="text-center py-20 bg-gray-50 rounded-xl">
-                    <p className="text-gray-500 mb-4">아직 설정된 목표가 없습니다.</p>
-                    <Button variant="outline" onClick={() => setIsModalOpen(true)}>
+                <div className="text-center py-20 bg-slate-900/50 rounded-xl border border-slate-800 backdrop-blur-sm">
+                    <p className="text-slate-500 mb-4">아직 설정된 목표가 없습니다.</p>
+                    <Button variant="outline" onClick={() => setIsModalOpen(true)} className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white">
                         지금 첫 목표를 시작해보세요!
                     </Button>
                 </div>

@@ -25,19 +25,19 @@ export function ProgressBar({
         <div className="w-full">
             <div className="flex justify-between mb-1">
                 {showLabel && (
-                    <span className="text-xs font-medium text-blue-700 dark:text-white">
+                    <span className="text-xs font-medium text-slate-400">
                         달성률
                     </span>
                 )}
                 {showLabel && (
-                    <span className="text-xs font-medium text-blue-700 dark:text-white">
+                    <span className="text-xs font-medium text-amber-400">
                         {normalizedProgress}%
                     </span>
                 )}
             </div>
-            <div className={`w-full bg-gray-200 rounded-full dark:bg-gray-700 ${heights[height]}`}>
+            <div className={`w-full bg-slate-800 rounded-full ${heights[height]}`}>
                 <div
-                    className={`${color} ${heights[height]} rounded-full transition-all duration-500 ease-out`}
+                    className={`${color === 'bg-blue-600' ? 'bg-gradient-to-r from-amber-500 to-amber-600' : color} ${heights[height]} rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(245,158,11,0.3)]`}
                     style={{ width: `${normalizedProgress}%` }}
                 ></div>
             </div>

@@ -9,7 +9,7 @@ import {
     signOut as firebaseSignOut
 } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { User } from '@/types';
 import { COLLECTIONS } from '@/constants';
 
@@ -34,45 +34,75 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-            if (firebaseUser) {
-                // Firestore에서 사용자 정보 조회
-                const userRef = doc(db, COLLECTIONS.USERS, firebaseUser.uid);
-                const userSnap = await getDoc(userRef);
+        console.log('AuthContext: Initializing...');
+        let mounted = true;
 
-                if (userSnap.exists()) {
-                    // 기존 사용자
-                    setUser(userSnap.data() as User);
-                } else {
-                    // 신규 사용자 - Firestore에 저장
-                    const newUser: User = {
-                        uid: firebaseUser.uid,
-                        email: firebaseUser.email || '',
-                        displayName: firebaseUser.displayName || '사용자',
-                        photoURL: firebaseUser.photoURL || '',
-                        interests: [],
-                        createdAt: new Date(),
-                        updatedAt: new Date(),
-                    };
-
-                    // Date 객체는 Firestore 저장 시 변환이 필요할 수 있으나, 
-                    // 여기서는 클라이언트 상태 관리를 위해 그대로 둠.
-                    // 실제 저장 시에는 serverTimestamp()를 사용하는 것이 좋음.
-                    await setDoc(userRef, {
-                        ...newUser,
-                        createdAt: serverTimestamp(),
-                        updatedAt: serverTimestamp(),
-                    });
-
-                    setUser(newUser);
-                }
-            } else {
-                setUser(null);
+        // 5초 타임아웃: Firebase가 응답하지 않으면 로딩 해제
+        const timeoutId = setTimeout(() => {
+            if (mounted && loading) {
+                console.error('AuthContext: Auth initialization timed out.');
+                setLoading(false);
             }
-            setLoading(false);
+        }, 5000);
+
+        let unsubscribeFirestore: (() => void) | null = null;
+
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
+            console.log('AuthContext: Auth state changed', firebaseUser ? 'User logged in' : 'User logged out');
+            clearTimeout(timeoutId);
+
+            // Cleanup previous listener
+            if (unsubscribeFirestore) {
+                unsubscribeFirestore();
+                unsubscribeFirestore = null;
+            }
+
+            if (firebaseUser) {
+                // Connect Firestore Listeners
+                const userRef = doc(db, COLLECTIONS.USERS, firebaseUser.uid);
+
+                unsubscribeFirestore = onSnapshot(userRef, async (docSnap) => {
+                    if (docSnap.exists()) {
+                        // Real-time update
+                        if (mounted) setUser(docSnap.data() as User);
+                    } else {
+                        // Create new user doc if missing (and logic allows)
+                        // Note: SignupPage also creates doc, but onSnapshot will handle the update.
+                        if (firebaseUser.displayName) {
+                            const newUser: User = {
+                                uid: firebaseUser.uid,
+                                email: firebaseUser.email || '',
+                                displayName: firebaseUser.displayName || '사용자',
+                                photoURL: firebaseUser.photoURL || '',
+                                interests: [],
+                                createdAt: new Date(),
+                                updatedAt: new Date(),
+                            };
+                            await setDoc(userRef, {
+                                ...newUser,
+                                createdAt: serverTimestamp(),
+                                updatedAt: serverTimestamp(),
+                            });
+                        }
+                    }
+                    if (mounted) setLoading(false);
+                }, (error) => {
+                    console.error('AuthContext: Firestore listen error', error);
+                    if (mounted) setLoading(false);
+                });
+
+            } else {
+                if (mounted) setUser(null);
+                if (mounted) setLoading(false);
+            }
         });
 
-        return () => unsubscribe();
+        return () => {
+            mounted = false;
+            clearTimeout(timeoutId);
+            unsubscribe();
+            if (unsubscribeFirestore) unsubscribeFirestore();
+        };
     }, []);
 
     const signInWithGoogle = async () => {

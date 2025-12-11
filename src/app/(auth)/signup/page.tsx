@@ -10,6 +10,7 @@ import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { User } from '@/types';
+import { getAuthErrorMessage } from '@/utils/authErrors';
 
 export default function SignupPage() {
     const router = useRouter();
@@ -25,42 +26,59 @@ export default function SignupPage() {
         setError('');
         setLoading(true);
 
+        // 10초 타임아웃 설정
+        const timeout = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('TIMEOUT')), 10000)
+        );
+
         try {
-            // 1. Firebase Auth 사용자 생성
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
+            console.log('Starting signup process...');
 
-            // 2. 프로필 업데이트 (이름)
-            await updateProfile(user, {
-                displayName: name,
-            });
+            // Promise.race로 타임아웃 적용
+            await Promise.race([
+                (async () => {
+                    // 1. Firebase Auth 사용자 생성
+                    console.log('Creating user with auth...');
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+                    console.log('User created:', user.uid);
 
-            // 3. Firestore에 사용자 정보 저장
-            const newUser: User = {
-                uid: user.uid,
-                email: user.email || '',
-                displayName: name,
-                photoURL: '',
-                interests: [],
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            };
+                    // 2. 프로필 업데이트 (이름)
+                    console.log('Updating profile...');
+                    await updateProfile(user, {
+                        displayName: name,
+                    });
 
-            await setDoc(doc(db, COLLECTIONS.USERS, user.uid), {
-                ...newUser,
-                createdAt: serverTimestamp(),
-                updatedAt: serverTimestamp(),
-            });
+                    // 3. Firestore에 사용자 정보 저장
+                    console.log('Saving to Firestore...');
+                    const newUser: User = {
+                        uid: user.uid,
+                        email: user.email || '',
+                        displayName: name,
+                        photoURL: '',
+                        interests: [],
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                    };
 
+                    await setDoc(doc(db, COLLECTIONS.USERS, user.uid), {
+                        ...newUser,
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp(),
+                    });
+                    console.log('Firestore saved.');
+                })(),
+                timeout
+            ]);
+
+            console.log('Redirecting to Home...');
             router.push(ROUTES.HOME);
         } catch (err: any) {
-            console.error(err);
-            if (err.code === 'auth/email-already-in-use') {
-                setError('이미 사용 중인 이메일입니다.');
-            } else if (err.code === 'auth/weak-password') {
-                setError('비밀번호는 6자 이상이어야 합니다.');
+            console.error('Signup Error:', err);
+            if (err.message === 'TIMEOUT') {
+                setError('요청 시간이 초과되었습니다. 네트워크 연결을 확인하거나 잠시 후 다시 시도해주세요.');
             } else {
-                setError('회원가입 중 오류가 발생했습니다.');
+                setError(getAuthErrorMessage(err.code || err.message));
             }
         } finally {
             setLoading(false);
